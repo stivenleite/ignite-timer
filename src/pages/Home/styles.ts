@@ -85,7 +85,7 @@ export const MinutesInput = styled(BaseInput)`
     width: 4rem;
 `
 
-export const StartButton = styled.button`
+export const BaseButton = styled.button`
     width: 100%;
     border: none;
     padding: 1rem;
@@ -100,8 +100,11 @@ export const StartButton = styled.button`
 
     cursor: pointer;
 
-    background-color: ${props => props.theme['green-500']};
     color: ${props => props.theme['gray-100']};
+`
+
+export const StartButton = styled(BaseButton)`
+    background-color: ${props => props.theme['green-500']};
 
     &:disabled {
         opacity: 0.7;
@@ -110,5 +113,14 @@ export const StartButton = styled.button`
 
     &:not(:disabled):hover {
         background-color: ${props => props.theme['green-700']};
+    }
+
+`
+
+export const StopButton = styled(BaseButton)`
+    background-color: ${props => props.theme['red-500']};
+
+    &:hover {
+        background-color: ${props => props.theme['red-700']};
     }
 `
