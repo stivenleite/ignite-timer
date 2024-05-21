@@ -1,4 +1,5 @@
-import { ReactNode, createContext, useState } from 'react';
+import { differenceInSeconds } from 'date-fns';
+import { ReactNode, createContext, useEffect, useState } from 'react';
 
 interface CyclesContextType {
     cycles: Cycle[];
@@ -32,10 +33,29 @@ interface Cycle {
 export const CyclesContext = createContext({} as CyclesContextType)
 
 export function CyclesContextProvider({ children }: CyclesContextProviderProps) {
-    const [cycles, setCycles] = useState<Cycle[]>([])
-    const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
-    const [secondsAmountPassed, setSecondsAmountPassed] = useState(0)
+    const [cycles, setCycles] = useState<Cycle[]>(() => {
+        const storedCycles = localStorage.getItem('@ignite-timer:cycles')
+        if (storedCycles){
+            return JSON.parse(storedCycles)
+        } else {
+            return []
+        }
+    })
+    const [activeCycleId, setActiveCycleId] = useState<string | null>(() => {
+        const storedActiveCycle = cycles.find(cycle => !cycle.stopDate && !cycle.finishedDate)
+        if (storedActiveCycle){
+            return storedActiveCycle.id
+        }
+        return null
+    })
     const activeCycle = cycles.find(cycle => cycle.id === activeCycleId)
+    
+    const [secondsAmountPassed, setSecondsAmountPassed] = useState(() => {
+        if(activeCycle){
+            return differenceInSeconds(new Date(), new Date(activeCycle.startDate))
+        }
+        return 0
+    })
 
     function setSecondsPassed(seconds: number) {
         setSecondsAmountPassed(seconds)
@@ -84,6 +104,10 @@ export function CyclesContextProvider({ children }: CyclesContextProviderProps) 
         document.title = 'Ingite Timer - Finished'
         alert('Task finished!')
     }
+
+    useEffect(() => {
+        localStorage.setItem('@ignite-timer:cycles', JSON.stringify(cycles))
+    }, [cycles])
 
     return (
        <CyclesContext.Provider value={{ 
